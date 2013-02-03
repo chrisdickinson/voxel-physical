@@ -9,13 +9,13 @@ function physical(avatar, collidables, dimensions, terminal) {
 
 function Physical(avatar, collidables, dimensions, terminal) {
   this.avatar = avatar
-  this.terminal = terminal || new THREE.Vector3(30, 56, 30)
+  this.terminal = terminal || new THREE.Vector3(30, 5.6, 30)
   this.dimensions = dimensions= dimensions || new THREE.Vector3(1, 1, 1)
   this._aabb = aabb([0, 0, 0], [dimensions.x, dimensions.y, dimensions.z])
   this.resting = {x: false, y: false, z: false}
   this.collidables = collidables
 
-  this.forces = new THREE.Vector3(0, 1, 0)
+  this.forces = new THREE.Vector3(0, 0, 0)
   this.acceleration = new THREE.Vector3(0, 0, 0)
   this.velocity = new THREE.Vector3(0, 0, 0)
 }
@@ -25,45 +25,80 @@ var cons = Physical
   , axes = ['x', 'y', 'z']
   , abs = Math.abs
 
+// make these *once*, so we're not generating
+// garbage for every object in the game.
+var WORLD_DESIRED = new THREE.Vector3(0, 0, 0)
+  , DESIRED = new THREE.Vector3(0, 0, 0)
+  , INVQUAT = new THREE.Quaternion(0, 0, 0, 0)
+  , START = new THREE.Vector3(0, 0, 0)
+  , END = new THREE.Vector3(0, 0, 0)
+
 proto.tick = function(dt) {
   var forces = this.forces
     , acceleration = this.acceleration
     , velocity = this.velocity
     , terminal = this.terminal
-    , desired = new THREE.Vector3(0, 0, 0)
-    , world_desired = new THREE.Vector3(0, 0, 0)
+    , desired = DESIRED
+    , world_desired = WORLD_DESIRED
     , bbox
     , pcs
 
+  desired.x =
+  desired.y =
+  desired.z = 
+  world_desired.x =
+  world_desired.y =
+  world_desired.z = 0
+
   if(!this.resting.x) {
-    acceleration.x /= 1.75
+    acceleration.x /= 8
     acceleration.x += forces.x * dt
 
     velocity.x += acceleration.x * dt
     if(abs(velocity.x) < terminal.x) {
       desired.x = (velocity.x * dt) 
+    } else if(velocity.x !== 0) {
+      desired.x = (velocity.x / abs(velocity.x)) * terminal.x
     }
+  } else {
+    acceleration.x = velocity.x = 0
   }
   if(!this.resting.y) {
-    acceleration.y /= 1.75
+    acceleration.y /= 8
     acceleration.y += forces.y * dt
 
     velocity.y += acceleration.y * dt
     if(abs(velocity.y) < terminal.y) {
       desired.y = (velocity.y * dt) 
+    } else if(velocity.y !== 0) {
+      desired.y = (velocity.y / abs(velocity.y)) * terminal.y
     }
+  } else {
+    acceleration.y = velocity.y = 0
   }
   if(!this.resting.z) {
-    acceleration.z /= 1.75
+    acceleration.z /= 8
     acceleration.z += forces.z * dt
 
     velocity.z += acceleration.z * dt
     if(abs(velocity.z) < terminal.z) {
       desired.z = (velocity.z * dt) 
+    } else if(velocity.z !== 0) {
+      desired.z = (velocity.z / abs(velocity.z)) * terminal.z
     }
+  } else {
+    acceleration.z = velocity.z = 0
   }
 
-  this.avatar.quaternion.multiplyVector3(desired, world_desired)
+  START.copy(this.avatar.position)
+  this.avatar.translateX(desired.x)
+  this.avatar.translateY(desired.y)
+  this.avatar.translateZ(desired.z)
+  END.copy(this.avatar.position)
+  this.avatar.position.copy(START)
+  world_desired.x = END.x - START.x
+  world_desired.y = END.y - START.y
+  world_desired.z = END.z - START.z
 
   // run collisions
   this.resting.x = 
@@ -80,15 +115,13 @@ proto.tick = function(dt) {
   }
 
   // apply translation 
-  this.avatar.quaternion.clone().inverse().multiplyVector3(world_desired, desired)
-
-  this.avatar.translateX(desired.x)
-  this.avatar.translateY(desired.y)
-  this.avatar.translateZ(desired.z)
+  this.avatar.position.x += world_desired.x
+  this.avatar.position.y += world_desired.y
+  this.avatar.position.z += world_desired.z
 }
 
 proto.subjectTo = function(force) {
-  this.forces.addVector(this.forces, force)
+  this.forces.addSelf(force)
   return this
 }
 
