@@ -121,7 +121,9 @@ proto.tick = function(dt) {
 }
 
 proto.subjectTo = function(force) {
-  this.forces.addSelf(force)
+  this.forces.x += force.x
+  this.forces.y += force.y
+  this.forces.z += force.z
   return this
 }
 
