@@ -1,6 +1,6 @@
 {
   "name": "voxel-physical",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "create objects that have aabbs and respond to accel and vel updates",
   "main": "index.js",
   "scripts": {
@@ -19,6 +19,6 @@
   "gitHead": "1b2a372bce5fb9fd460e231c0cea8fcc5d6e2352",
   "dependencies": {
     "three": "0.X.X",
-    "aabb-3d": "0.0.0"
+    "aabb-3d": "0.0.X"
   }
 }

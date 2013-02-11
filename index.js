@@ -10,10 +10,19 @@ function physical(avatar, collidables, dimensions, terminal) {
 function Physical(avatar, collidables, dimensions, terminal) {
   this.avatar = avatar
   this.terminal = terminal || new THREE.Vector3(30, 5.6, 30)
-  this.dimensions = dimensions= dimensions || new THREE.Vector3(1, 1, 1)
+  this.dimensions = dimensions = dimensions || new THREE.Vector3(1, 1, 1)
   this._aabb = aabb([0, 0, 0], [dimensions.x, dimensions.y, dimensions.z])
   this.resting = {x: false, y: false, z: false}
   this.collidables = collidables
+  this.friction = new THREE.Vector3(1, 1, 1) 
+
+  this.rotation = this.avatar.rotation
+  this.default_friction = 1
+
+  // default yaw/pitch/roll controls to the avatar
+  this.yaw = 
+  this.pitch = 
+  this.roll = avatar
 
   this.forces = new THREE.Vector3(0, 0, 0)
   this.acceleration = new THREE.Vector3(0, 0, 0)
@@ -29,15 +38,27 @@ var cons = Physical
 // garbage for every object in the game.
 var WORLD_DESIRED = new THREE.Vector3(0, 0, 0)
   , DESIRED = new THREE.Vector3(0, 0, 0)
-  , INVQUAT = new THREE.Quaternion(0, 0, 0, 0)
   , START = new THREE.Vector3(0, 0, 0)
   , END = new THREE.Vector3(0, 0, 0)
+
+proto.applyWorldAcceleration = applyTo('acceleration')
+proto.applyWorldVelocity = applyTo('velocity')
+
+function applyTo(which) {
+  return function(world) {
+    var local = this.avatar.worldToLocal(world)
+    this[which].x += local.x
+    this[which].y += local.y
+    this[which].z += local.z
+  }
+}
 
 proto.tick = function(dt) {
   var forces = this.forces
     , acceleration = this.acceleration
     , velocity = this.velocity
     , terminal = this.terminal
+    , friction = this.friction
     , desired = DESIRED
     , world_desired = WORLD_DESIRED
     , bbox
@@ -55,6 +76,8 @@ proto.tick = function(dt) {
     acceleration.x += forces.x * dt
 
     velocity.x += acceleration.x * dt
+    velocity.x *= friction.x
+
     if(abs(velocity.x) < terminal.x) {
       desired.x = (velocity.x * dt) 
     } else if(velocity.x !== 0) {
@@ -68,6 +91,8 @@ proto.tick = function(dt) {
     acceleration.y += forces.y * dt
 
     velocity.y += acceleration.y * dt
+    velocity.y *= friction.y
+
     if(abs(velocity.y) < terminal.y) {
       desired.y = (velocity.y * dt) 
     } else if(velocity.y !== 0) {
@@ -81,6 +106,8 @@ proto.tick = function(dt) {
     acceleration.z += forces.z * dt
 
     velocity.z += acceleration.z * dt
+    velocity.z *= friction.z
+
     if(abs(velocity.z) < terminal.z) {
       desired.z = (velocity.z * dt) 
     } else if(velocity.z !== 0) {
@@ -100,13 +127,17 @@ proto.tick = function(dt) {
   world_desired.y = END.y - START.y
   world_desired.z = END.z - START.z
 
+  this.friction.x =
+  this.friction.y = 
+  this.friction.z = this.default_friction 
+
   // run collisions
   this.resting.x = 
   this.resting.y =
   this.resting.z = false
 
   bbox = this.aabb()
-  pcs = this.collidables(bbox, world_desired)
+  pcs = this.collidables
 
   for(var i = 0, len = pcs.length; i < len; ++i) {
     if(pcs[i] !== this) {
@@ -128,11 +159,10 @@ proto.subjectTo = function(force) {
 }
 
 proto.aabb = function() {
-  return this._aabb.translate([
-      this.avatar.position.x - this._aabb.base[0]
-    , this.avatar.position.y - this._aabb.base[1]
-    , this.avatar.position.z - this._aabb.base[2]
-  ])
+  return aabb(
+      [this.avatar.position.x, this.avatar.position.y, this.avatar.position.z]
+    , [this.dimensions.x, this.dimensions.y, this.dimensions.z]
+  )
 }
 
 // no object -> object collisions for now, thanks
