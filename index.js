@@ -72,7 +72,7 @@ proto.tick = function(dt) {
   world_desired.z = 0
 
   if(!this.resting.x) {
-    acceleration.x /= 8
+    acceleration.x /= 8 * dt
     acceleration.x += forces.x * dt
 
     velocity.x += acceleration.x * dt
@@ -87,7 +87,7 @@ proto.tick = function(dt) {
     acceleration.x = velocity.x = 0
   }
   if(!this.resting.y) {
-    acceleration.y /= 8
+    acceleration.y /= 8 * dt
     acceleration.y += forces.y * dt
 
     velocity.y += acceleration.y * dt
@@ -102,7 +102,7 @@ proto.tick = function(dt) {
     acceleration.y = velocity.y = 0
   }
   if(!this.resting.z) {
-    acceleration.z /= 8
+    acceleration.z /= 8 * dt
     acceleration.z += forces.z * dt
 
     velocity.z += acceleration.z * dt
