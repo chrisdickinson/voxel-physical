@@ -14,14 +14,14 @@ function Physical(avatar, collidables, dimensions, terminal) {
   this._aabb = aabb([0, 0, 0], [dimensions.x, dimensions.y, dimensions.z])
   this.resting = {x: false, y: false, z: false}
   this.collidables = collidables
-  this.friction = new THREE.Vector3(1, 1, 1) 
+  this.friction = new THREE.Vector3(1, 1, 1)
 
   this.rotation = this.avatar.rotation
   this.default_friction = 1
 
   // default yaw/pitch/roll controls to the avatar
-  this.yaw = 
-  this.pitch = 
+  this.yaw =
+  this.pitch =
   this.roll = avatar
 
   this.forces = new THREE.Vector3(0, 0, 0)
@@ -71,7 +71,7 @@ proto.tick = function(dt) {
 
   desired.x =
   desired.y =
-  desired.z = 
+  desired.z =
   world_desired.x =
   world_desired.y =
   world_desired.z = 0
@@ -97,7 +97,7 @@ proto.tick = function(dt) {
     velocity.x *= friction.x
 
     if(abs(velocity.x) < terminal.x) {
-      desired.x = (velocity.x * dt) 
+      desired.x = (velocity.x * dt)
     } else if(velocity.x !== 0) {
       desired.x = (velocity.x / abs(velocity.x)) * terminal.x
     }
@@ -112,7 +112,7 @@ proto.tick = function(dt) {
     velocity.y *= friction.y
 
     if(abs(velocity.y) < terminal.y) {
-      desired.y = (velocity.y * dt) 
+      desired.y = (velocity.y * dt)
     } else if(velocity.y !== 0) {
       desired.y = (velocity.y / abs(velocity.y)) * terminal.y
     }
@@ -127,7 +127,7 @@ proto.tick = function(dt) {
     velocity.z *= friction.z
 
     if(abs(velocity.z) < terminal.z) {
-      desired.z = (velocity.z * dt) 
+      desired.z = (velocity.z * dt)
     } else if(velocity.z !== 0) {
       desired.z = (velocity.z / abs(velocity.z)) * terminal.z
     }
@@ -146,11 +146,11 @@ proto.tick = function(dt) {
   world_desired.z = END.z - START.z
 
   this.friction.x =
-  this.friction.y = 
-  this.friction.z = this.default_friction 
+  this.friction.y =
+  this.friction.z = this.default_friction
 
   // run collisions
-  this.resting.x = 
+  this.resting.x =
   this.resting.y =
   this.resting.z = false
 
@@ -163,7 +163,7 @@ proto.tick = function(dt) {
     }
   }
 
-  // apply translation 
+  // apply translation
   this.avatar.position.x += world_desired.x
   this.avatar.position.y += world_desired.y
   this.avatar.position.z += world_desired.z
