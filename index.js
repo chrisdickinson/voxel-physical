@@ -14,17 +14,18 @@ function Physical(avatar, collidables, dimensions, terminal) {
   this._aabb = aabb([0, 0, 0], dimensions)
   this.resting = {x: false, y: false, z: false}
   this.collidables = collidables
-  this.friction = new THREE.Vector3(1, 1, 1) 
+  this.friction = new THREE.Vector3(1, 1, 1)
 
   this.rotation = this.avatar.rotation
   this.default_friction = 1
 
   // default yaw/pitch/roll controls to the avatar
-  this.yaw = 
-  this.pitch = 
+  this.yaw =
+  this.pitch =
   this.roll = avatar
 
   this.forces = new THREE.Vector3(0, 0, 0)
+  this.attractors = []
   this.acceleration = new THREE.Vector3(0, 0, 0)
   this.velocity = new THREE.Vector3(0, 0, 0)
 }
@@ -40,6 +41,9 @@ var WORLD_DESIRED = new THREE.Vector3(0, 0, 0)
   , DESIRED = new THREE.Vector3(0, 0, 0)
   , START = new THREE.Vector3(0, 0, 0)
   , END = new THREE.Vector3(0, 0, 0)
+  , DIRECTION = new THREE.Vector3()
+  , LOCAL_ATTRACTOR = new THREE.Vector3()
+  , TOTAL_FORCES = new THREE.Vector3()
 
 proto.applyWorldAcceleration = applyTo('acceleration')
 proto.applyWorldVelocity = applyTo('velocity')
@@ -63,23 +67,37 @@ proto.tick = function(dt) {
     , world_desired = WORLD_DESIRED
     , bbox
     , pcs
+  TOTAL_FORCES.multiplyScalar(0)
 
   desired.x =
   desired.y =
-  desired.z = 
+  desired.z =
   world_desired.x =
   world_desired.y =
   world_desired.z = 0
-  
+
+  for(var i = 0; i < this.attractors.length; i++) {
+    var distance_factor = this.avatar.position.distanceToSquared(this.attractors[i])
+    LOCAL_ATTRACTOR.copy(this.attractors[i])
+    LOCAL_ATTRACTOR = this.avatar.worldToLocal(LOCAL_ATTRACTOR)
+
+    DIRECTION.sub(LOCAL_ATTRACTOR, this.avatar.position)
+
+    DIRECTION.divideScalar(DIRECTION.length() * distance_factor)
+    DIRECTION.multiplyScalar(this.attractors[i].mass)
+
+    TOTAL_FORCES.addSelf(DIRECTION)
+  }
+
   if(!this.resting.x) {
     acceleration.x /= 8 * dt
-    acceleration.x += forces.x * dt
+    acceleration.x += TOTAL_FORCES.x * dt
 
     velocity.x += acceleration.x * dt
     velocity.x *= friction.x
 
     if(abs(velocity.x) < terminal.x) {
-      desired.x = (velocity.x * dt) 
+      desired.x = (velocity.x * dt)
     } else if(velocity.x !== 0) {
       desired.x = (velocity.x / abs(velocity.x)) * terminal.x
     }
@@ -88,13 +106,13 @@ proto.tick = function(dt) {
   }
   if(!this.resting.y) {
     acceleration.y /= 8 * dt
-    acceleration.y += forces.y * dt
+    acceleration.y += TOTAL_FORCES.y * dt
 
     velocity.y += acceleration.y * dt
     velocity.y *= friction.y
 
     if(abs(velocity.y) < terminal.y) {
-      desired.y = (velocity.y * dt) 
+      desired.y = (velocity.y * dt)
     } else if(velocity.y !== 0) {
       desired.y = (velocity.y / abs(velocity.y)) * terminal.y
     }
@@ -103,13 +121,13 @@ proto.tick = function(dt) {
   }
   if(!this.resting.z) {
     acceleration.z /= 8 * dt
-    acceleration.z += forces.z * dt
+    acceleration.z += TOTAL_FORCES.z * dt
 
     velocity.z += acceleration.z * dt
     velocity.z *= friction.z
 
     if(abs(velocity.z) < terminal.z) {
-      desired.z = (velocity.z * dt) 
+      desired.z = (velocity.z * dt)
     } else if(velocity.z !== 0) {
       desired.z = (velocity.z / abs(velocity.z)) * terminal.z
     }
@@ -127,11 +145,11 @@ proto.tick = function(dt) {
   world_desired.y = END.y - START.y
   world_desired.z = END.z - START.z
   this.friction.x =
-  this.friction.y = 
-  this.friction.z = this.default_friction 
+  this.friction.y =
+  this.friction.z = this.default_friction
 
   // run collisions
-  this.resting.x = 
+  this.resting.x =
   this.resting.y =
   this.resting.z = false
 
@@ -144,7 +162,7 @@ proto.tick = function(dt) {
     }
   }
 
-  // apply translation 
+  // apply translation
   this.avatar.position.x += world_desired.x
   this.avatar.position.y += world_desired.y
   this.avatar.position.z += world_desired.z
@@ -155,6 +173,11 @@ proto.subjectTo = function(force) {
   this.forces.y += force[1]
   this.forces.z += force[2]
   return this
+}
+
+proto.attractTo = function(vector, mass) {
+  vector.mass = mass
+  this.attractors.push(vector)
 }
 
 proto.aabb = function() {
