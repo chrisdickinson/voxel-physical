@@ -10,8 +10,8 @@ function physical(avatar, collidables, dimensions, terminal) {
 function Physical(avatar, collidables, dimensions, terminal) {
   this.avatar = avatar
   this.terminal = terminal || new THREE.Vector3(30, 5.6, 30)
-  this.dimensions = dimensions = dimensions || new THREE.Vector3(1, 1, 1)
-  this._aabb = aabb([0, 0, 0], [dimensions.x, dimensions.y, dimensions.z])
+  this.dimensions = dimensions = dimensions || [1, 1, 1]
+  this._aabb = aabb([0, 0, 0], dimensions)
   this.resting = {x: false, y: false, z: false}
   this.collidables = collidables
   this.friction = new THREE.Vector3(1, 1, 1) 
@@ -70,7 +70,7 @@ proto.tick = function(dt) {
   world_desired.x =
   world_desired.y =
   world_desired.z = 0
-
+  
   if(!this.resting.x) {
     acceleration.x /= 8 * dt
     acceleration.x += forces.x * dt
@@ -116,7 +116,7 @@ proto.tick = function(dt) {
   } else {
     acceleration.z = velocity.z = 0
   }
-
+  
   START.copy(this.avatar.position)
   this.avatar.translateX(desired.x)
   this.avatar.translateY(desired.y)
@@ -126,7 +126,6 @@ proto.tick = function(dt) {
   world_desired.x = END.x - START.x
   world_desired.y = END.y - START.y
   world_desired.z = END.z - START.z
-
   this.friction.x =
   this.friction.y = 
   this.friction.z = this.default_friction 
@@ -152,16 +151,16 @@ proto.tick = function(dt) {
 }
 
 proto.subjectTo = function(force) {
-  this.forces.x += force.x
-  this.forces.y += force.y
-  this.forces.z += force.z
+  this.forces.x += force[0]
+  this.forces.y += force[1]
+  this.forces.z += force[2]
   return this
 }
 
 proto.aabb = function() {
   return aabb(
       [this.avatar.position.x, this.avatar.position.y, this.avatar.position.z]
-    , [this.dimensions.x, this.dimensions.y, this.dimensions.z]
+    , this.dimensions
   )
 }
 
