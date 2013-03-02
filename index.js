@@ -88,10 +88,11 @@ proto.tick = function(dt) {
 
     TOTAL_FORCES.addSelf(DIRECTION)
   }
-
+  
   if(!this.resting.x) {
     acceleration.x /= 8 * dt
     acceleration.x += TOTAL_FORCES.x * dt
+    acceleration.x += forces.x * dt
 
     velocity.x += acceleration.x * dt
     velocity.x *= friction.x
@@ -107,6 +108,7 @@ proto.tick = function(dt) {
   if(!this.resting.y) {
     acceleration.y /= 8 * dt
     acceleration.y += TOTAL_FORCES.y * dt
+    acceleration.y += forces.y * dt
 
     velocity.y += acceleration.y * dt
     velocity.y *= friction.y
@@ -122,6 +124,7 @@ proto.tick = function(dt) {
   if(!this.resting.z) {
     acceleration.z /= 8 * dt
     acceleration.z += TOTAL_FORCES.z * dt
+    acceleration.z += forces.z * dt
 
     velocity.z += acceleration.z * dt
     velocity.z *= friction.z
