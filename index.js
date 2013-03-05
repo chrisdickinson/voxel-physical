@@ -178,6 +178,13 @@ proto.subjectTo = function(force) {
   return this
 }
 
+proto.removeForce = function(force) {
+  this.forces.x -= force[0]
+  this.forces.y -= force[1]
+  this.forces.z -= force[2]
+  return this
+}
+
 proto.attractTo = function(vector, mass) {
   vector.mass = mass
   this.attractors.push(vector)
