@@ -9,7 +9,7 @@ function physical(avatar, collidables, dimensions, terminal) {
 
 function Physical(avatar, collidables, dimensions, terminal) {
   this.avatar = avatar
-  this.terminal = terminal || new THREE.Vector3(30, 5.6, 30)
+  this.terminal = terminal || new THREE.Vector3(0.9, 0.1, 0.9)
   this.dimensions = dimensions = dimensions || [1, 1, 1]
   this._aabb = aabb([0, 0, 0], dimensions)
   this.resting = {x: false, y: false, z: false}
