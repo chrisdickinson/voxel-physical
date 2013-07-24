@@ -191,9 +191,11 @@ proto.attractTo = function(vector, mass) {
 }
 
 proto.aabb = function() {
+  var pos = this.avatar.position
+  var d = this.dimensions
   return aabb(
-      [this.avatar.position.x, this.avatar.position.y, this.avatar.position.z]
-    , this.dimensions
+    [pos.x - (d[0]/2), pos.y, pos.z - (d[2]/2)],
+    this.dimensions
   )
 }
 
