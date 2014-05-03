@@ -173,10 +173,10 @@ proto.tick = function(dt) {
   }
 
   // fall distance
-  if (this.old_old_resting_y !== this.resting.y) {
-    if (!this.resting.y) {
+  if(this.old_old_resting_y !== this.resting.y) {
+    if(!this.resting.y) {
       this.lastRestY = this.avatar.position.y
-    } else if (this.lastRestY !== undefined) {
+    } else if(this.lastRestY !== undefined) {
       this.fell(this.lastRestY - this.avatar.position.y)
     }
   }
