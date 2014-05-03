@@ -20,7 +20,7 @@ function Physical(avatar, collidables, dimensions, terminal) {
 
   this.rotation = this.avatar.rotation
   this.default_friction = 1
-  this.fell = undefined
+  this.fell = function() { }
 
   // default yaw/pitch/roll controls to the avatar
   this.yaw =
@@ -177,7 +177,7 @@ proto.tick = function(dt) {
     if (!this.resting.y) {
       this.lastRestY = this.avatar.position.y
     } else if (this.lastRestY !== undefined) {
-      if (this.fell) this.fell(this.lastRestY - this.avatar.position.y)
+      this.fell(this.lastRestY - this.avatar.position.y)
     }
   }
 
