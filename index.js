@@ -13,6 +13,8 @@ function Physical(avatar, collidables, dimensions, terminal) {
   this.dimensions = dimensions = dimensions || [1, 1, 1]
   this._aabb = aabb([0, 0, 0], dimensions)
   this.resting = {x: false, y: false, z: false}
+  this.old_resting_y = undefined
+  this.old_old_resting_y = undefined
   this.collidables = collidables
   this.friction = new THREE.Vector3(1, 1, 1)
 
