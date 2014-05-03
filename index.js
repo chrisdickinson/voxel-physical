@@ -13,11 +13,14 @@ function Physical(avatar, collidables, dimensions, terminal) {
   this.dimensions = dimensions = dimensions || [1, 1, 1]
   this._aabb = aabb([0, 0, 0], dimensions)
   this.resting = {x: false, y: false, z: false}
+  this.old_resting_y = undefined
+  this.old_old_resting_y = undefined
   this.collidables = collidables
   this.friction = new THREE.Vector3(1, 1, 1)
 
   this.rotation = this.avatar.rotation
   this.default_friction = 1
+  this.fell = function() { }
 
   // default yaw/pitch/roll controls to the avatar
   this.yaw =
@@ -151,6 +154,10 @@ proto.tick = function(dt) {
   this.friction.y =
   this.friction.z = this.default_friction
 
+  // save two old copies, since when normally on the ground, this.resting.y alternates (false,-1)
+  this.old_old_resting_y = this.old_resting_y
+  this.old_resting_y = this.resting.y
+
   // run collisions
   this.resting.x =
   this.resting.y =
@@ -162,6 +169,15 @@ proto.tick = function(dt) {
   for(var i = 0, len = pcs.length; i < len; ++i) {
     if(pcs[i] !== this) {
       pcs[i].collide(this, bbox, world_desired, this.resting)
+    }
+  }
+
+  // fall distance
+  if(this.old_old_resting_y !== this.resting.y) {
+    if(!this.resting.y) {
+      this.lastRestY = this.avatar.position.y
+    } else if(this.lastRestY !== undefined) {
+      this.fell(this.lastRestY - this.avatar.position.y)
     }
   }
 
