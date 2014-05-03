@@ -13,14 +13,14 @@ function Physical(avatar, collidables, dimensions, terminal) {
   this.dimensions = dimensions = dimensions || [1, 1, 1]
   this._aabb = aabb([0, 0, 0], dimensions)
   this.resting = {x: false, y: false, z: false}
-  this.old_resting_y = undefined
-  this.old_old_resting_y = undefined
+  this.old_resting_y = 0
+  this.last_rest_y = NaN
+
   this.collidables = collidables
   this.friction = new THREE.Vector3(1, 1, 1)
 
   this.rotation = this.avatar.rotation
   this.default_friction = 1
-  this.fell = function() { }
 
   // default yaw/pitch/roll controls to the avatar
   this.yaw =
@@ -140,7 +140,7 @@ proto.tick = function(dt) {
   } else {
     acceleration.z = velocity.z = 0
   }
-  
+
   START.copy(this.avatar.position)
   this.avatar.translateX(desired.x)
   this.avatar.translateY(desired.y)
@@ -154,9 +154,10 @@ proto.tick = function(dt) {
   this.friction.y =
   this.friction.z = this.default_friction
 
-  // save two old copies, since when normally on the ground, this.resting.y alternates (false,-1)
-  this.old_old_resting_y = this.old_resting_y
-  this.old_resting_y = this.resting.y
+  // save old copies, since when normally on the
+  // ground, this.resting.y alternates (false,-1)
+  this.old_resting_y = (this.old_resting_y << 1) >>> 0
+  this.old_resting_y = !!this.resting.y | 0
 
   // run collisions
   this.resting.x =
@@ -173,11 +174,12 @@ proto.tick = function(dt) {
   }
 
   // fall distance
-  if(this.old_old_resting_y !== this.resting.y) {
+  if(!!(this.resting.y & 0x2) !== !!this.resting.y) {
     if(!this.resting.y) {
-      this.lastRestY = this.avatar.position.y
-    } else if(this.lastRestY !== undefined) {
-      this.fell(this.lastRestY - this.avatar.position.y)
+      this.last_rest_y = this.avatar.position.y
+    } else if(!isNaN(this.last_rest_y)) {
+      this.fell(this.last_rest_y - this.avatar.position.y)
+      this.last_rest_y = NaN
     }
   }
 
@@ -230,4 +232,8 @@ proto.atRestY = function() {
 
 proto.atRestZ = function() {
   return this.resting.z
+}
+
+proto.fell = function(distance) {
+  return
 }
