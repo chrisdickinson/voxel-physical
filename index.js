@@ -174,7 +174,7 @@ proto.tick = function(dt) {
   }
 
   // fall distance
-  if(!!(this.resting.y & 0x2) !== !!this.resting.y) {
+  if(!!(this.resting.y & 0x4) !== !!this.resting.y) {
     if(!this.resting.y) {
       this.last_rest_y = this.avatar.position.y
     } else if(!isNaN(this.last_rest_y)) {
