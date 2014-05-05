@@ -1,6 +1,6 @@
 {
   "name": "voxel-physical",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "create objects that have aabbs and respond to accel and vel updates",
   "main": "index.js",
   "scripts": {
