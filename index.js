@@ -157,7 +157,7 @@ proto.tick = function(dt) {
   // save old copies, since when normally on the
   // ground, this.resting.y alternates (false,-1)
   this.old_resting_y = (this.old_resting_y << 1) >>> 0
-  this.old_resting_y = !!this.resting.y | 0
+  this.old_resting_y |= !!this.resting.y | 0
 
   // run collisions
   this.resting.x =
